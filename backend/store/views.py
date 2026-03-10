@@ -61,11 +61,8 @@ def get_cart(request):
 @api_view(["POST"])
 def add_to_cart(request):
     product_id = request.data.get('product_id')
-
     product = get_object_or_404(Product, id=product_id)
-
     cart, created = Cart.objects.get_or_create(user=None)
-
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
 
     if not created:

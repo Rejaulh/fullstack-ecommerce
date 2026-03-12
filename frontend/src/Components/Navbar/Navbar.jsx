@@ -1,10 +1,11 @@
 import React, {useContext} from "react";
 import { Link, NavLink } from "react-router-dom";
 import "./Navbar.css";
-import { CartContext } from "../../Context/CartContext";
+import { CartContext } from "../Context/CartContext";
 
 const Navbar = () => {
   const { cartItems } = useContext(CartContext);
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <header className="navbar">
@@ -32,9 +33,10 @@ const Navbar = () => {
 
         <Link to="/cart" className="cart">
           🛒
-          <span className="cart-count">({cartItems?.length || 0})</span>
+          {cartCount > 0 && (
+          <span className="cart-count">{cartCount}</span>
+          )}
         </Link>
-
         <Link to="/login">
           <button className="login-btn">Login</button>
         </Link>

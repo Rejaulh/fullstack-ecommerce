@@ -45,4 +45,4 @@ return (
   );
 };
 
-export const useCart = () => useContext(CartContext);
+// export const useCart = () => useContext(CartContext);

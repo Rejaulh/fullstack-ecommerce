@@ -1,9 +1,5 @@
 # 🛒 Full Stack E-Commerce Web Application
 
-![React](https://img.shields.io/badge/Frontend-React-blue)
-![Django](https://img.shields.io/badge/Backend-Django-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
-
 A **Full Stack E-Commerce Web Application** built using **React.js** and **Django REST Framework**.
 This project demonstrates a modern shopping experience where users can browse products, view details, and manage a shopping cart.
 
@@ -43,9 +39,7 @@ This project demonstrates a modern shopping experience where users can browse pr
 
 ---
 
-# 📂 Project Structure
-
-## Screenshots
+# 📂 Project Screenshots
 
 ![Home Page](screenshots/projectstructure.png)
 
@@ -98,13 +92,13 @@ This project demonstrates a modern shopping experience where users can browse pr
 
 | Method | Endpoint | Description |
 |------|------|------|
-| GET | /api/products/ | Get all products |
-| GET | /api/products<int:pk>/ | Get single product |
-| GET | /api/categories/ | Get category of products |
-| GET | /api/cart/ | Get all cart products |
-| POST | /api/cart/add/ | Add item to cart |
-| POST | /api/cart/update/ | Update quantity |
-| POST | /api/cart/remove/ | Remove item |
+| GET | `/api/products/` | Get all products |
+| GET | `/api/products/<int:pk>/` | Get single product |
+| GET | `/api/categories/` | Get category of products |
+| GET | `/api/cart/` | Get all cart products |
+| POST | `/api/cart/add/` | Add item to cart |
+| POST | `/api/cart/update/` | Update quantity |
+| POST | `/api/cart/remove/` | Remove item |
 
 
 ---

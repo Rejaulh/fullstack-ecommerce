@@ -47,7 +47,7 @@ This project demonstrates a modern shopping experience where users can browse pr
 
 ## Screenshots
 
-![Home Page](screenshots/projectstructrure.png)
+![Home Page](screenshots/projectstructure.png)
 
 
 ---
@@ -106,11 +106,6 @@ This project demonstrates a modern shopping experience where users can browse pr
 | POST | /api/cart/update/ | Update quantity |
 | POST | /api/cart/remove/ | Remove item |
 
----
-
-# 📸 Screenshots
-
-Add project screenshots here.
 
 ---
 # 📈 Future Improvements

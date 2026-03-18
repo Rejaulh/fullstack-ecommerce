@@ -31,12 +31,13 @@
 }
 
 /* Product info */
-.item-id h2 {
+.item-detail h2 {
   font-size: 18px;
   margin-bottom: 5px;
+  color: #555;
 }
 
-.item-id p {
+.item-detail p {
   color: #555;
 }
 
@@ -45,6 +46,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  color: #f10fdf;
 }
 
 /* Quantity number */

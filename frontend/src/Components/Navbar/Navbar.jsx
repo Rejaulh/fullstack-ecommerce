@@ -16,7 +16,7 @@ const Navbar = () => {
 
       {/* Navigation Links */}
       <nav className="navbar-links">
-        <NavLink to="/" end>Home</NavLink>
+        <NavLink to="/">Home</NavLink>
         <NavLink to="/men">Men</NavLink>
         <NavLink to="/women">Women</NavLink>
         <NavLink to="/kids">Kids</NavLink>

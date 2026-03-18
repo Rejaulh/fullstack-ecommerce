@@ -8,7 +8,7 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
 
-
+// Fetch cart from backend
   const fetchCart = async () => {
     try {
       const response = await fetch(`${BASEURL}/api/cart/`)
@@ -16,8 +16,15 @@ export const CartProvider = ({ children }) => {
         throw new Error("Failed to fetch cart");
       }
       const data = await response.json();
-      setCartItems(data.item || []);
-      setTotal(data.total || 0);
+      const items = data.items || [];
+      console.log(items);
+    // Calculate total manually
+    const calculatedTotal = items.reduce(
+      (acc, item) => acc + item.product_price * item.quantity,
+      0
+    );
+    setCartItems(items);
+    setTotal(calculatedTotal);
 
     } catch (error) {
       console.error("Error fatching cart:", error);
@@ -30,39 +37,61 @@ export const CartProvider = ({ children }) => {
 
   
     // Add product to cart
-    const addToCart = (product) => {
-      const exist = cartItems.find((item) => item.id === product.id);
-      if (exist) {
-        setCartItems(
-          cartItems.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          )
-        );
-      } else {
-        setCartItems([...cartItems, { ...product, quantity: 1 }]);
+    const addToCart = async(product) => {
+      try{
+          await fetch(`${BASEURL}/api/cart/add/`,{
+            method: "POST",
+            headers: {
+              "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({product_id: product.id}),
+          })
+          fetchCart();
+      } catch(error){
+        console.error("Error adding to cart", error);
+      }
+    }
+
+
+    // Remove product from cart
+    const removeFromCart = async(item_id)=>{
+      try{
+          await fetch(`${BASEURL}/api/cart/remove/`,{
+            method: "POST",
+            headers: {
+              "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({item_id}),
+          });
+          fetchCart();
+      }catch(error){
+          console.error("Error removing from cart", error);
+      }
+    }
+
+    // Update Quantity
+    const updateQuantity = async(item_id, quantity)=>{
+      if (quantity < 1){
+        await removeFromCart(item_id);
+        return;
+      }
+      try{
+          await fetch(`${BASEURL}/api/cart/update/`,{
+            method: "POST",
+            headers: {
+              "Content-Type" : "application/json"
+            },
+            body: JSON.stringify({item_id , quantity}),
+          })
+          fetchCart();
+      }catch(error){
+          console.error("Error removing from cart", error);
       }
     };
 
 
-    // Remove product from cart
-    const removeFromCart = (id) => {
-      setCartItems(cartItems.filter(item => item.id !== id));
-    };
-
-    // Update Quantity
-    const updateQuantity = (id, quantity) => {
-      if (quantity < 1) return;
-      setCartItems(
-        cartItems.map((item) =>
-          item.id === id ? { ...item, quantity } : item
-        )
-      );
-    };
-
     return (
-      <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity }}>
+      <CartContext.Provider value={{ cartItems, total, addToCart, removeFromCart, updateQuantity }}>
         {children}
       </CartContext.Provider>
     );

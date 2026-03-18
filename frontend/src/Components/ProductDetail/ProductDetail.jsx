@@ -5,12 +5,13 @@ import { CartContext } from '../Context/CartContext';
 
 const ProductDetail = () => {
     const {id} = useParams();
-    const [products, setProducts] = useState(null);
+    const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { addToCart } = useContext(CartContext);
 
     const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
+    console.log(product);
 
     useEffect(() => {
         fetch(`${BASEURL}/api/products/${id}/`)
@@ -21,7 +22,7 @@ const ProductDetail = () => {
                 return response.json();
             })
             .then((data) => {
-                setProducts(data);
+                setProduct(data);
                 setLoading(false);
             })
             .catch((error) => {
@@ -44,17 +45,17 @@ const ProductDetail = () => {
             <div className='product-image'>
                 <div className='product-detail-image'>
                     <img 
-                    src={`${products.image}`}
-                    alt= {products.name}
+                    src={`${product.image}`}
+                    alt= {product.name}
                     className='image-detail'
                     />
                 </div>
                 <div className='product-name'>
-                    <h1>{products.name}</h1>
-                    <p>{products.price}</p>
+                    <h1>{product.name}</h1>
+                    <p>{product.price}</p>
                     <button 
                         className='cart-button' 
-                        onClick={() => addToCart(products)}>
+                        onClick={() => addToCart(product)}>
                         Add to cart 
                     </button>
                 </div>

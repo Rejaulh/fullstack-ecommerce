@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .models import Product, Category, Cart, CartItem
+from .models import Product, Category, Cart, CartItem, Order, OrderItem
 from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, CartSerializer
 
 @api_view(["GET"])
@@ -110,3 +110,60 @@ def update_cart_quantity(request):
         
     except CartItem.DoesNotExist:
         return Response({'error': 'cart item not found'}, status=404)
+
+
+@api_view(['POST'])
+def create_order(request):
+    try:
+        data = request.data
+
+        name = data.get('name')
+        address = data.get('address')
+        phone = data.get('phone')
+        payment_method = data.get('payment_method', 'COD')
+
+        # Validate input
+        if not name or not address or not phone:
+            return Response({'error':'name , address and phone are required'}, 
+            status=status.HTTP_400_BAD_REQUEST)
+
+         # Get user's cart
+        cart = Cart.objects.filter(user=request.user).first()
+
+        if not cart or not cart.items.exist():
+            return Response({'error':'cart is empty'},
+            status=status.HTTP_400_BAD_REQUEST)
+
+        #  Create order
+        order = Order.objects.create(
+            user = request.user,
+            name = name,
+            address = address,
+            phone = phone,
+            payment_method = payment_method
+        )
+        total_price = 0
+
+        # covert cart ------> OrderItems
+        for item in cart.items.all():
+            OrderItem.objects.create(
+                order = order,
+                product = item.product,
+                quantity = item.quantity
+            )
+            total_price += item.product.price * item.quantity
+
+        #  clear cart after order
+        cart.items.all().delete()
+
+        return Response({
+            'message': 'Order placed successfully',
+            'order_id': order.id,
+            'total_price' : total_price
+        }, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_400_BAD_REQUEST
+        )

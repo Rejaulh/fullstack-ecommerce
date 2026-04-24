@@ -2,9 +2,11 @@ from django.shortcuts import render
 # from . import views
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Product, Category, Cart, CartItem, Order, OrderItem
-from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, CartSerializer
+from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, CartSerializer, OrderSerializer, OrderItemSerializer
+from django.contrib.auth.models import User
 
 @api_view(["GET"])
 def get_products(request):
@@ -128,30 +130,36 @@ def create_order(request):
             status=status.HTTP_400_BAD_REQUEST)
 
          # Get user's cart
-        cart = Cart.objects.filter(user=request.user).first()
+        # cart = Cart.objects.filter(user=request.user).first()
+        cart = Cart.objects.first()
 
-        if not cart or not cart.items.exist():
+        if not cart or not cart.items.exists():
             return Response({'error':'cart is empty'},
             status=status.HTTP_400_BAD_REQUEST)
 
+        total = sum(float(item.product.price) * item.quantity for item in cart.items.all())
+
         #  Create order
         order = Order.objects.create(
-            user = request.user,
-            name = name,
-            address = address,
-            phone = phone,
-            payment_method = payment_method
+            # user = request.user,
+            user = None,
+            total_price = total
+            # name = name,
+            # address = address,
+            # phone = phone,
+            # payment_method = payment_method
         )
-        total_price = 0
+        # total_price = 0
 
         # covert cart ------> OrderItems
         for item in cart.items.all():
             OrderItem.objects.create(
                 order = order,
                 product = item.product,
-                quantity = item.quantity
+                quantity = item.quantity,
+                price = item.product.price
             )
-            total_price += item.product.price * item.quantity
+            # total_price += item.product.price * item.quantity
 
         #  clear cart after order
         cart.items.all().delete()
@@ -159,7 +167,7 @@ def create_order(request):
         return Response({
             'message': 'Order placed successfully',
             'order_id': order.id,
-            'total_price' : total_price
+            'total_price' : total
         }, status=status.HTTP_201_CREATED)
 
     except Exception as e:

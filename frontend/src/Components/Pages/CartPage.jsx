@@ -1,9 +1,11 @@
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { CartContext } from "../Context/CartContext";
 import './CSS/CartPage.css';
 
 function CartPage() {
     const { cartItems, total, removeFromCart, updateQuantity } = useContext(CartContext);
+    const navigate = useNavigate();
     const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
     console.log(cartItems);
     console.log(total)
@@ -58,6 +60,12 @@ function CartPage() {
                         <h2>Total</h2>
                         <p>${Number(total ?? 0).toFixed(2)}</p>
                     </div>
+                    <button 
+                        className="checkout-button"
+                        onClick={() => navigate('/checkout')}
+                    >
+                        Proceed to Checkout
+                    </button>
                 </div>
             )}
         </div>

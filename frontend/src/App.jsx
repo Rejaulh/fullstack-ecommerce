@@ -4,6 +4,7 @@ import ProductList from './Components/ProductList/ProductList';
 import ProductDetail from './Components/ProductDetail/ProductDetail';
 import Navbar from './Components/Navbar/Navbar';
 import CartPage from './Components/Pages/CartPage';
+import OrderPage from './Components/Pages/OrderPage';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
           <Route path='/' element={<ProductList/>}/>
           <Route path='/products/:id' element={<ProductDetail/>}/>
           <Route path='/cart' element={<CartPage/>}/>
+          <Route path='/checkout' element={<OrderPage/>}/>
         </Routes>
       
     </div>

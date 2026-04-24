@@ -54,7 +54,7 @@ class Order(models.Model):
 
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE,null=True, blank=True,
         related_name='orders'
     )
 

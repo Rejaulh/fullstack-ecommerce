@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Product, Category, Cart, CartItem, Order, OrderItem
-from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, CartSerializer, OrderSerializer, OrderItemSerializer
+from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, CartSerializer, OrderSerializer, OrderItemSerializer, RegisterSerializer
 from django.contrib.auth.models import User
 
 @api_view(["GET"])
@@ -175,3 +175,19 @@ def create_order(request):
             {"error": str(e)},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+# Register view
+@api_view(['POST'])
+def register_user(request):
+    serializer = RegisterSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        return Response({
+            'message': 'User registered successfully',
+            'user':{
+                'id': user.id,
+                'username': user.username,
+                'email': user.email 
+                }
+            }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  

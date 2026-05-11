@@ -1,11 +1,19 @@
 import React, {useContext} from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { CartContext } from "../Context/CartContext";
+import { clearToken, getAccessToken } from "../../Utils/auth";
 
 const Navbar = () => {
   const { cartItems } = useContext(CartContext);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const navigate = useNavigate();
+  const isLoggedIn = !!getAccessToken();
+  const handleLogout = () => {
+    clearToken();
+    navigate("/login");
+  };
+
 
   return (
     <header className="navbar">
@@ -23,6 +31,7 @@ const Navbar = () => {
         <NavLink to="/electronics">Electronics</NavLink>
       </nav>
 
+
       {/* Search + Cart + Login */}
       <div className="navbar-right">
         <input
@@ -31,15 +40,26 @@ const Navbar = () => {
           className="search-input"
         />
 
+
         <Link to="/cart" className="cart">
           🛒
           {cartCount > 0 && (
           <span className="cart-count">{cartCount}</span>
           )}
+
+          
         </Link>
-        <Link to="/login">
-          <button className="login-btn">Login</button>
-        </Link>
+        {getAccessToken() ? (
+          <Link to="/login">
+            <button className="login-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </Link>
+        ) : (
+          <Link to="/login">
+            <button className="login-btn">Login</button>
+          </Link>
+        )}
       </div>
     </header>
   );

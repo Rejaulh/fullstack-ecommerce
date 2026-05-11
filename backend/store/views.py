@@ -1,12 +1,13 @@
 from django.shortcuts import render
 # from . import views
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Product, Category, Cart, CartItem, Order, OrderItem
 from .serializers import ProductSerializer, CategorySerializer, CartItemSerializer, CartSerializer, OrderSerializer, OrderItemSerializer, RegisterSerializer
 from django.contrib.auth.models import User
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 @api_view(["GET"])
 def get_products(request):
@@ -29,42 +30,22 @@ def get_categories(request):
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
-# @api_view(["GET"])
-# def get_cart(request):
-#     cart, created = Cart.objects.get_or_create(user=None)
-#     serializer = CartSerializer(cart)
-#     return Response(serializer.data)
-
-# @api_view(["POST"])
-# def add_to_cart(request):
-#     product_id = request.data.get('product_id')
-#     product = Product.objects.get(id=product_id)
-#     cart, created = Cart.objects.get_or_create(user=None)
-#     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-#     if not created:
-#         item.quantity += 1
-#         item.save()
-#     return Response({'message':'product added to cart', 'cart':CartItemSerializer(cart).data})
-
-# @api_view(["POST"])
-# def remove_from_cart(request):
-#     item_id = request.data.get('item_id')
-#     CartItem.objects.filter(id=item_id.delete)
-#     return Response({'message':'Item remove from cart'})
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_cart(request):
-    cart, created = Cart.objects.get_or_create(user=None)
+    cart, created = Cart.objects.get_or_create(user=request.user)
     serializer = CartSerializer(cart)
     return Response(serializer.data)
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def add_to_cart(request):
     product_id = request.data.get('product_id')
     product = get_object_or_404(Product, id=product_id)
-    cart, created = Cart.objects.get_or_create(user=None)
+    cart, created = Cart.objects.get_or_create(user=request.user)
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
 
     if not created:
@@ -78,6 +59,7 @@ def add_to_cart(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def remove_from_cart(request):
     item_id = request.data.get('item_id')
 
@@ -89,6 +71,7 @@ def remove_from_cart(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def update_cart_quantity(request):
     item_id = request.data.get('item_id')
     quantity = request.data.get('quantity')
@@ -115,6 +98,7 @@ def update_cart_quantity(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])  
 def create_order(request):
     try:
         data = request.data
@@ -124,15 +108,13 @@ def create_order(request):
         phone = data.get('phone')
         payment_method = data.get('payment_method', 'COD')
 
-        # Validate input
-        if not name or not address or not phone:
-            return Response({'error':'name , address and phone are required'}, 
-            status=status.HTTP_400_BAD_REQUEST)
+        # Validate phone number
+        if phone and (not phone.isdigit() or len(phone) < 10):
+            return Response({'error':'invalid phone number'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
 
-         # Get user's cart
-        # cart = Cart.objects.filter(user=request.user).first()
-        cart = Cart.objects.first()
-
+        
+        cart , created = Cart.objects.get_or_create(user=request.user)
         if not cart or not cart.items.exists():
             return Response({'error':'cart is empty'},
             status=status.HTTP_400_BAD_REQUEST)
@@ -141,15 +123,9 @@ def create_order(request):
 
         #  Create order
         order = Order.objects.create(
-            # user = request.user,
-            user = None,
+            user = request.user,
             total_price = total
-            # name = name,
-            # address = address,
-            # phone = phone,
-            # payment_method = payment_method
         )
-        # total_price = 0
 
         # covert cart ------> OrderItems
         for item in cart.items.all():
@@ -159,7 +135,6 @@ def create_order(request):
                 quantity = item.quantity,
                 price = item.product.price
             )
-            # total_price += item.product.price * item.quantity
 
         #  clear cart after order
         cart.items.all().delete()
@@ -178,6 +153,7 @@ def create_order(request):
 
 # Register view
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register_user(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
@@ -191,3 +167,5 @@ def register_user(request):
                 }
             }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+
+

@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../Context/CartContext";
 import "./CSS/OrderPage.css";
+import { authFetch } from "../../Utils/auth";
 
 function OrderPage() {
   const { cartItems, total } = useContext(CartContext);
@@ -45,7 +46,7 @@ function OrderPage() {
         return;
       }
 
-      const response = await fetch(`${BASEURL}/api/cart/order/`, {
+      const response = await authFetch(`${BASEURL}/api/cart/order/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

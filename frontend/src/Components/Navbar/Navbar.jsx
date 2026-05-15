@@ -9,6 +9,7 @@ const Navbar = () => {
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const navigate = useNavigate();
   const isLoggedIn = !!getAccessToken();
+  
   const handleLogout = () => {
     clearToken();
     navigate("/login");
@@ -47,18 +48,25 @@ const Navbar = () => {
           <span className="cart-count">{cartCount}</span>
           )}
 
-          
+          {/*Login/Signup or Logout  */}
         </Link>
-        {getAccessToken() ? (
+        {!isLoggedIn ? (
+          <>
           <Link to="/login">
-            <button className="login-btn" onClick={handleLogout}>
-              Logout
+            <button className="login-btn">
+              Login
             </button>
+
           </Link>
+        
+          <Link to="/Signup">
+            <button className="signup-btn">Signup</button>
+          </Link>
+          </>
         ) : (
-          <Link to="/login">
-            <button className="login-btn">Login</button>
-          </Link>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button> 
         )}
       </div>
     </header>

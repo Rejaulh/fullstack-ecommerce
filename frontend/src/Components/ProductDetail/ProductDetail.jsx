@@ -39,6 +39,14 @@ const ProductDetail = () => {
         return <div>Error: {error}</div>
     }
 
+    const handleaddToCart = () => {
+        if(!localStorage.getItem("access_token")){
+            window.location.href = "/login";    
+            return;
+        }
+        addToCart(product.id);
+    }
+
 
     return (
         <div className='product-detail'>
@@ -55,7 +63,7 @@ const ProductDetail = () => {
                     <p>{product.price}</p>
                     <button 
                         className='cart-button' 
-                        onClick={() => addToCart(product)}>
+                        onClick={handleaddToCart}>
                         Add to cart 
                     </button>
                 </div>

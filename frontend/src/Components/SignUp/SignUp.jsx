@@ -1,11 +1,16 @@
 import './SignUp.css';
 import { useState } from 'react';
-import { data, useNavigate } from 'react-router-dom';
-// import { saveTokenToken } from '../../Utils/auth';
+import { Link, useNavigate } from 'react-router-dom';
+
 
 const SignUp = () => {
     const BASEURL = import.meta.env.VITE_DJANGO_BASE_URL;
-    const [formData, setFormData] = useState({ username:"", email:"", password: "" });
+    const [formData, setFormData] = useState({ 
+        username:"", 
+        email:"", 
+        password: "" ,
+        password2: ""
+    });
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
 
@@ -16,6 +21,14 @@ const SignUp = () => {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
+        setMessage("");
+
+        //  client-side validation
+        if (formData.password !== formData.password2) {
+            setMessage("Passwords do not match");
+            return;
+        }
+
         try{
             const response = await fetch(`${BASEURL}/api/register/`, {
                 method: "POST",
@@ -24,25 +37,34 @@ const SignUp = () => {
                 },
                 body: JSON.stringify(formData),
             });
+
+            const data = await response.json();
+
             if(response.ok){
-                const data = await response.json();
-                // saveTokenToken(data.access);
                 setMessage("Registration successful!");
+
                 setTimeout(() => {
                     navigate("/login");
                 }, 1200);
+
             } else {
-                setMessage(data.username || data.password || JSON.stringify(data));
+                setMessage(
+                    data.username?.[0] ||
+                    data.email?.[0] ||
+                    data.password?.[0] ||
+                    "Registration failed");
+                   
             }
         } catch(error){
             console.error("Error during registration", error);
-            setMessage("An error occurred. Please try again later.");
+            setMessage("Server error. Please try again later.");
         }
-    }
+    };
 
     return (
         <div className='signup_container'>
             <h2>Sign Up</h2>
+
             <form onSubmit={handleSubmit} className='signup_form'>
                 <input 
                     type="text"
@@ -70,9 +92,9 @@ const SignUp = () => {
                 />
                 <input 
                     type="password"
-                    name="confirm_password"
+                    name="password2"
                     placeholder='Confirm Password'
-                    value={formData.confirm_password}
+                    value={formData.password2}
                     onChange={handleChange}
                     required
                 />
@@ -81,10 +103,10 @@ const SignUp = () => {
             {message && <p className='message'>{message}</p>}
              <div className='login-link'>
                 <p>Already have an account? 
-                    <a href="/login">Login</a></p>
+                    <Link to="/login">Login</Link></p>
             </div>  
         </div>
     );
-}
+};
 
 export default SignUp
